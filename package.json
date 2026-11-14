@@ -1,0 +1,7 @@
+{
+  "name": "commonground",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.15.0 <25" },
+  "scripts": { "start": "node start.js", "dev": "node start.js", "test": "node --test backend/test/*.test.js", "build": "npm --prefix frontend run build", "lint": "npm --prefix frontend run lint", "check": "npm run lint && npm test && npm run build" }
+}

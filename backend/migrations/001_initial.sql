@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, record TEXT NOT NULL CHECK(json_valid(record)));
+CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, record TEXT NOT NULL CHECK(json_valid(record)));
+CREATE TABLE IF NOT EXISTS threads (id TEXT PRIMARY KEY, record TEXT NOT NULL CHECK(json_valid(record)));
+CREATE TABLE IF NOT EXISTS replies (id TEXT PRIMARY KEY, record TEXT NOT NULL CHECK(json_valid(record)));
+CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, record TEXT NOT NULL CHECK(json_valid(record)));
+CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, record TEXT NOT NULL CHECK(json_valid(record)));
+CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users(lower(json_extract(record, '$.email')));
+CREATE INDEX IF NOT EXISTS sessions_user ON sessions(json_extract(record, '$.userId'));
+CREATE INDEX IF NOT EXISTS replies_thread ON replies(json_extract(record, '$.threadId'));
+CREATE INDEX IF NOT EXISTS messages_thread ON messages(json_extract(record, '$.threadId'));
+CREATE INDEX IF NOT EXISTS notifications_user ON notifications(json_extract(record, '$.userId'));
+PRAGMA user_version = 1;

@@ -1,0 +1,27 @@
+name: Validate application
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm ci --prefix backend
+      - run: npm ci --prefix frontend
+      - run: npm run check
+      - run: npm audit --omit=dev --prefix backend --audit-level=high
+      - run: npm audit --omit=dev --prefix frontend --audit-level=high
+      - name: Validate proxy configuration
+        run: docker run --rm -e APP_DOMAIN=localhost -v "$PWD/frontend/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.11.7-alpine caddy validate --config /etc/caddy/Caddyfile
+      - name: Build production images without starting them
+        run: |
+          docker build -t commonground-backend ./backend
+          docker build -t commonground-frontend ./frontend

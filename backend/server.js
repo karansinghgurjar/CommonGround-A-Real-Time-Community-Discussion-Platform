@@ -5,6 +5,7 @@ import { randomBytes, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { db, database, closeStore, dataDir, id, now, save, publicUser, presentThread } from './store.js';
 import { config } from './config.js';
 import { security, rateLimit } from './security.js';
@@ -163,6 +164,14 @@ app.post('/api/upload', auth, rateLimit({ windowMs: 60000, limit: 10 }), upload.
   res.json({ url: user.avatar, user: publicUser(user) });
 });
 app.use('/api', (req, res) => res.status(404).json({ message: 'API endpoint not found.' }));
+const frontendDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+if (fs.existsSync(frontendDir)) {
+  app.use(express.static(frontendDir, { index: false, maxAge: '1h' }));
+  app.get(/.*/, (req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) return next();
+    res.sendFile(path.join(frontendDir, 'index.html'));
+  });
+}
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
   const status = err.code === 'LIMIT_FILE_SIZE' || err.status === 413 ? 413 : err instanceof SyntaxError || err.status === 400 || err.name === 'MulterError' || err.message.startsWith('Only ') ? 400 : 500;

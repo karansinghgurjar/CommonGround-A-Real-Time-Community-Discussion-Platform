@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const production = process.env.NODE_ENV === 'production';
 const port = Number(process.env.PORT || 3001);
-const clientUrl = process.env.CLIENT_URL || (production ? '' : 'http://localhost:5173');
+const clientUrl = process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL || (production ? '' : 'http://localhost:5173');
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be an integer from 1 to 65535.');
 let origin;
 try { const url = new URL(clientUrl); if (url.origin !== clientUrl || !['http:', 'https:'].includes(url.protocol)) throw new Error(); origin = url.origin; }

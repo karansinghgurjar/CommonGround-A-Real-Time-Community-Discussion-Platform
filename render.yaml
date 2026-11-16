@@ -19,8 +19,6 @@ services:
         value: /app/data
       - key: TRUST_PROXY
         value: "1"
-      - key: CLIENT_URL
-        value: https://commonground.onrender.com
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_EMAIL
